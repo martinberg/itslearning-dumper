@@ -70,8 +70,6 @@ parser.add_argument('--enable-checkpoints', '-C', dest='enable_checkpoints', typ
 					help='Save the location of the last element encountered by the dumping process. Useful for quick recovery while debugging, or being able to continue the dumping process at a later date.')
 parser.add_argument('--output-text-extension', '-E', dest='output_extension', default='.html',
 					help='Specifies the extension given to produced plaintext files. Values ought to be either ".html" or ".txt".')
-parser.add_argument('--institution', '-I', dest='institution', default=None, 
-					help='Only dump the content of a single institution site. This value should either be "ntnu" or "hist".')
 parser.add_argument('--list', '-L', dest='do_listing', action='store_true',
 					help='Don\'t dump anything, just list all courses and projects for each institution, along with their IDs.')
 parser.add_argument('--projects-only', '-P', dest='projects_only', action='store_true',
@@ -117,6 +115,7 @@ skip_to_course_with_index = max(args.skip_to_course, (1 if args.courses_only or 
 if not args.do_listing:
 	print('----- It\'s Learning dump script -----')
 	print('Created by: Bart van Blokland (bart.van.blokland@ntnu.no)')
+	print('Modified by: Fredrik Erlandsson (fer@bth.se)')
 	print()
 	print('Greetings! This script will help you download your content off of It\'s Learning.')
 	print('We\'ll start by selecting a directory where all the files are going to be saved.')
@@ -180,108 +179,74 @@ enable_checkpoints = args.enable_checkpoints
 
 # --- CONSTANTS ---
 
-innsida = 'https://innsida.ntnu.no'
+innsida = 'https://www.bth.se/lms'
+platform_redirection = 'https://platform.itslearning.com/Redirection/SetCustomerId.aspx?CustomerId=640'
 
-feide_base_url = 'https://idp.feide.no/simplesaml/module.php/feide/login.php'
-
-institutions = ['hist', 'ntnu']
+institutions = ['bth', ]
 
 itslearning_gateway_url = {
-	'ntnu': 'https://innsida.ntnu.no/sso?target=itslearning',
-	'hist': 'https://hist.itslearning.com/Index.aspx'}
-hist_login_postback_target = 'https://hist.itslearning.com/'
+	'bth': 'https://bth.itslearning.com/Index.aspx'}
 
 
 itsleaning_course_list = {
-	'ntnu': 'https://ntnu.itslearning.com/Course/AllCourses.aspx', 
-	'hist': 'https://hist.itslearning.com/Course/AllCourses.aspx'}
+	'bth': 'https://bth.itslearning.com/Course/AllCourses.aspx'}
 itslearning_course_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/ContentArea/ContentArea.aspx?LocationID={}&LocationType={}', 
-	'hist': 'https://hist.itslearning.com/ContentArea/ContentArea.aspx?LocationID={}&LocationType={}'}
+	'bth': 'https://bth.itslearning.com/ContentArea/ContentArea.aspx?LocationID={}&LocationType={}'}
 itslearning_login_landing_page = {
-	'ntnu': 'https://ntnu.itslearning.com/DashboardMenu.aspx',
-	'hist': 'https://hist.itslearning.com/DashboardMenu.aspx'}
+	'bth': 'https://bth.itslearning.com/DashboardMenu.aspx'}
 itslearning_course_bulletin_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Course/course.aspx?CourseId=', 
-	'hist': 'https://hist.itslearning.com/Course/course.aspx?CourseId='}
+	'bth': 'https://bth.itslearning.com/Course/course.aspx?CourseId='}
 itslearning_project_bulletin_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Project/project.aspx?ProjectId={}&BulletinBoardAll=True', 
-	'hist': 'https://hist.itslearning.com/Project/project.aspx?ProjectId={}&BulletinBoardAll=True'}
+	'bth': 'https://bth.itslearning.com/Project/project.aspx?ProjectId={}&BulletinBoardAll=True'}
 itslearning_bulletin_next_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}', 
-	'hist': 'https://hist.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}'}
+	'bth': 'https://bth.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}'}
 itslearning_folder_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Folder/processfolder.aspx?FolderID=', 
-	'hist': 'https://hist.itslearning.com/Folder/processfolder.aspx?FolderID='}
+	'bth': 'https://bth.itslearning.com/Folder/processfolder.aspx?FolderID='}
 itslearning_file_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/File/fs_folderfile.aspx?FolderFileID=', 
-	'hist': 'https://hist.itslearning.com/File/fs_folderfile.aspx?FolderFileID='}
+	'bth': 'https://bth.itslearning.com/File/fs_folderfile.aspx?FolderFileID='}
 itslearning_assignment_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/essay/read_essay.aspx?EssayID=', 
-	'hist': 'https://hist.itslearning.com/essay/read_essay.aspx?EssayID='}
+	'bth': 'https://bth.itslearning.com/essay/read_essay.aspx?EssayID='}
 itslearning_note_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/note/View_Note.aspx?NoteID=', 
-	'hist': 'https://hist.itslearning.com/note/View_Note.aspx?NoteID='}
+	'bth': 'https://bth.itslearning.com/note/View_Note.aspx?NoteID='}
 itslearning_discussion_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/discussion/list_discussions.aspx?DiscussionID=', 
-	'hist': 'https://hist.itslearning.com/discussion/list_discussions.aspx?DiscussionID='}
+	'bth': 'https://bth.itslearning.com/discussion/list_discussions.aspx?DiscussionID='}
 itslearning_weblink_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/weblink/weblink.aspx?WebLinkID=', 
-	'hist': 'https://hist.itslearning.com/weblink/weblink.aspx?WebLinkID='}
+	'bth': 'https://bth.itslearning.com/weblink/weblink.aspx?WebLinkID='}
 itslearning_weblink_header_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/weblink/weblink_header.aspx?WebLinkID=' , 
-	'hist': 'https://hist.itslearning.com/weblink/weblink_header.aspx?WebLinkID=' }
+	'bth': 'https://bth.itslearning.com/weblink/weblink_header.aspx?WebLinkID=' }
 itslearning_learning_tool_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/LearningToolElement/ViewLearningToolElement.aspx?LearningToolElementId=', 
-	'hist': 'https://hist.itslearning.com/LearningToolElement/ViewLearningToolElement.aspx?LearningToolElementId='}
+	'bth': 'https://bth.itslearning.com/LearningToolElement/ViewLearningToolElement.aspx?LearningToolElementId='}
 itslearning_comment_service = {
-	'ntnu': 'https://ntnu.itslearning.com/Services/CommentService.asmx/GetOldComments?sourceId={}&sourceType={}&commentId={}&count={}&numberOfPreviouslyReadItemsToDisplay={}&usePersonNameFormatLastFirst={}', 
-	'hist': 'https://hist.itslearning.com/Services/CommentService.asmx/GetOldComments?sourceId={}&sourceType={}&commentId={}&count={}&numberOfPreviouslyReadItemsToDisplay={}&usePersonNameFormatLastFirst={}'}
+	'bth': 'https://bth.itslearning.com/Services/CommentService.asmx/GetOldComments?sourceId={}&sourceType={}&commentId={}&count={}&numberOfPreviouslyReadItemsToDisplay={}&usePersonNameFormatLastFirst={}'}
 itslearning_root_url = {
-	'ntnu': 'https://ntnu.itslearning.com', 
-	'hist': 'https://hist.itslearning.com'}
+	'bth': 'https://bth.itslearning.com'}
 itslearning_not_found = {
-	'ntnu': 'https://ntnu.itslearning.com/not_exist.aspx', 
-	'hist': 'https://hist.itslearning.com/not_exist.aspx'}
+	'bth': 'https://bth.itslearning.com/not_exist.aspx'}
 itslearning_test_base_url = {
-	'ntnu': 'https://ntnu.itslearning.com/test/view_survey_list.aspx?TestID=', 
-	'hist': 'https://hist.itslearning.com/test/view_survey_list.aspx?TestID='}
+	'bth': 'https://bth.itslearning.com/test/view_survey_list.aspx?TestID='}
 old_messaging_api_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Messages/InternalMessages.aspx?MessageFolderId={}', 
-	'hist': 'https://hist.itslearning.com/Messages/InternalMessages.aspx?MessageFolderId={}'}
+	'bth': 'https://bth.itslearning.com/Messages/InternalMessages.aspx?MessageFolderId={}'}
 itslearning_picture_url = {
-	'ntnu': 'https://ntnu.itslearning.com/picture/view_picture.aspx?PictureID={}&FolderID=-1&ChildID=-1&DashboardHierarchyID=-1&DashboardName=&ReturnUrl=', 
-	'hist': 'https://hist.itslearning.com/picture/view_picture.aspx?PictureID={}&FolderID=-1&ChildID=-1&DashboardHierarchyID=-1&DashboardName=&ReturnUrl='}
+	'bth': 'https://bth.itslearning.com/picture/view_picture.aspx?PictureID={}&FolderID=-1&ChildID=-1&DashboardHierarchyID=-1&DashboardName=&ReturnUrl='}
 itslearning_online_test_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Ntt/EditTool/ViewTest.aspx?TestID={}',
-	'hist': 'https://hist.itslearning.com/Ntt/EditTool/ViewTest.aspx?TestID={}'}
+	'bth': 'https://bth.itslearning.com/Ntt/EditTool/ViewTest.aspx?TestID={}'}
 itslearning_online_test_details_postback_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Ntt/EditTool/ViewTestResults.aspx?TestResultId={}',
-	'hist': 'https://hist.itslearning.com/Ntt/EditTool/ViewTestResults.aspx?TestResultId={}'}
+	'bth': 'https://bth.itslearning.com/Ntt/EditTool/ViewTestResults.aspx?TestResultId={}'}
 itslearning_new_messaging_api_url = {
-	'ntnu': 'https://ntnu.itslearning.com/restapi/personal/instantmessages/messagethreads/v1?threadPage={}&maxThreadCount=15',
-	'hist': 'https://hist.itslearning.com/restapi/personal/instantmessages/messagethreads/v1?threadPage={}&maxThreadCount=15'}
+	'bth': 'https://bth.itslearning.com/restapi/personal/instantmessages/messagethreads/v1?threadPage={}&maxThreadCount=15'}
 itslearning_all_projects_url = {
-	'ntnu': 'https://ntnu.itslearning.com/Project/AllProjects.aspx',
-	'hist': 'https://hist.itslearning.com/Project/AllProjects.aspx'}
+	'bth': 'https://bth.itslearning.com/Project/AllProjects.aspx'}
 base64_png_image_url = {
-	'ntnu': 'https://ntnu.itslearning.comdata:image/png;base64,',
-	'hist': 'https://hist.itslearning.comdata:image/png;base64,'}
+	'bth': 'https://bth.itslearning.comdata:image/png;base64,'}
 base64_jpeg_image_url = {
-	'ntnu': 'https://ntnu.itslearning.comdata:image/jpeg;base64,',
-	'hist': 'https://hist.itslearning.comdata:image/jpeg;base64,'}
+	'bth': 'https://bth.itslearning.comdata:image/jpeg;base64,'}
 itslearning_unauthorized_url = {
-	'ntnu': 'https://ntnu.itslearning.com/not_authorized.aspx',
-	'hist': 'https://hist.itslearning.com/not_authorized.aspx'}
+	'bth': 'https://bth.itslearning.com/not_authorized.aspx'}
 
 innsida_login_parameters = {'SessionExpired': 0}
 progress_file_location = os.path.join(os.getcwd(), 'saved_progress_state.txt')
 
 overflow_count = 0
-
-# If an override institution was specified, redefine the institutions list so it is the only one in there.
-if args.institution is not None:
-	institutions = [args.institution.lower()]
 
 # --- HELPER FUNCTIONS ---
 
@@ -2141,97 +2106,57 @@ if os.path.exists(progress_file_location) and not args.do_listing:
 		catch_up_directions = [state_course_id, state_folder_state]
 
 with requests.Session() as session:
+	response = session.get(innsida, allow_redirects=True)
 
-	print('Querying Innsida..')
-	response = session.get(innsida, params=innsida_login_parameters, allow_redirects=True)
+	session.get(platform_redirection, allow_redirects=True)
 
 	login_page = fromstring(response.text)
 
 	login_form = login_page.forms[0]
 
 	credentials_correct = False
-
-	print()
-	print('----------')
-	print('To continue, the script needs to know your FEIDE login credentials.')
-	print('To do so, type in your NTNU/FEIDE username, press Enter, then type in your password, and press Enter again.')
-	print()
-	print('Both content from the HiST and NTNU sites is downloaded.')
-	print('Access to each of these will be detected automatically by the program.')
-	print()
-	print('NOTE: when the program asks for your password, for your security the characters you type are hidden.')
-	print('Just type in your password as you normally would, and press Enter.')
-	print()
+	if args.username is None:
+		print()
+		print('----------')
+		print('To continue, the script needs your BTH login credentials.')
+		print('To do so, type in your BTH username, press Enter, then type in your password, and press Enter again.')
+		print()
+		print('NOTE: when the program asks for your password, for your security the characters you type are hidden.')
+		print('Just type in your password as you normally would, and press Enter.')
+		print()
 
 	is_first_iteration = True
 	while not credentials_correct:
-		print('Please enter your NTNU/FEIDE username and password.')
+		if (args.username is None or not is_first_iteration) or (args.password is None or not is_first_iteration):
+			print('Please enter your BTH username and password.')
 
-		if args.username is None and is_first_iteration:
+		if args.username is None or not is_first_iteration:
 			username = input('Username: ')
 		else:
 			username = args.username
-		if args.password is None and is_first_iteration:
+		if args.password is None or not is_first_iteration:
 			password = getpass.getpass(prompt='Password: ')
 		else:
 			password = args.password
-		
-		login_form.fields['feidename'] = username
-		login_form.fields['password'] = password
 
 		login_form_dict = convert_lxml_form_to_requests(login_form)
-
-		feide_login_submit_url = feide_base_url + login_form.action
+		login_form_dict['ctl00$ContentPlaceHolder1$Username$input'] = username
+		login_form_dict['ctl00$ContentPlaceHolder1$Password$input'] = password
+		login_form_dict['ctl00$ContentPlaceHolder1$showNativeLoginValueField'] = ""
+		login_form_dict['ctl00$ContentPlaceHolder1$nativeLoginButton'] = "Logga in"
 
 		print('Sending login data')
-
-		relay_response = session.post(feide_login_submit_url, data = login_form_dict)
-
-		if fromstring(relay_response.text).forms[0].action.startswith('?'):
+		relay_response = session.post(itslearning_root_url['bth'], data=login_form_dict, allow_redirects=True)
+		if not fromstring(relay_response.text).forms[0].action.startswith('./DashboardMenu.aspx'):
 			print('Incorrect credentials!')
 		else:
 			credentials_correct = True
+
 		is_first_iteration = False
 
-	innsida_main_page = do_feide_relay(session, relay_response)
-
 	for institution in institutions:
-
-		print('Autodetecting access to', institution.upper())
-
-		has_access_to_institution = False
-		if institution == 'ntnu':
-			try:
-				innsida_outgoing_response = session.get(itslearning_gateway_url[institution], allow_redirects = True)
-				itslearning_main_page = do_feide_relay(session, innsida_outgoing_response)
-				has_access_to_institution = itslearning_login_landing_page[institution] in itslearning_main_page.url
-			except Exception:
-				# If anything unexpected happens, it's likely we've stumbled across a case of being denied access
-				has_access_to_institution = False
-
-		elif institution == 'hist':
-			try:
-				hist_login_page = session.get(itslearning_gateway_url[institution], allow_redirects = True)
-				hist_login_page_document = fromstring(hist_login_page.text)
-				postback_action = 'ctl00$ContentPlaceHolder1$federatedLoginButtons$ctl00$ctl00'
-				hist_postback_response = doPostBack(hist_login_postback_target, postback_action, hist_login_page_document)
-				# HiST does a double 'autosubmit form' relay instead of one.
-				hist_first_relay_response = do_feide_relay(session, hist_postback_response)
-				hist_second_relay_response = do_feide_relay(session, hist_first_relay_response)
-				has_access_to_institution = itslearning_login_landing_page[institution] in hist_second_relay_response.url
-			except Exception:
-				# If anything unexpected happens, it's likely we've stumbled across a case of being denied access
-				has_access_to_institution = False
-
-		if not has_access_to_institution:
-			print('It does not appear you have access to the It\'s Learning site of', institution.upper())
-			print('Skipping to the next one.')
-			continue
-
 		print('Access detected successfully.')
 		print('Accessing It\'s Learning')
-
-		
 
 		print('Listing courses.')
 
@@ -2246,7 +2171,6 @@ with requests.Session() as session:
 		projectList, projectNameDict = list_courses_or_projects(institution, session, itslearning_all_projects_url, 'ctl28$ctl00', 1, 'projects')
 
 		print('Found {} projects.'.format(len(projectList)))
-
 
 		# Feature for listing courses and projects which the user has access to. Triggered by a console parameter.
 		if args.do_listing:
