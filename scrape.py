@@ -115,7 +115,7 @@ skip_to_course_with_index = max(args.skip_to_course, (1 if args.courses_only or 
 if not args.do_listing:
 	print('----- It\'s Learning dump script -----')
 	print('Created by: Bart van Blokland (bart.van.blokland@ntnu.no)')
-	print('Modified by: Fredrik Erlandsson (fer@bth.se)')
+	print('Modified by: Martin Bergström')
 	print()
 	print('Greetings! This script will help you download your content off of It\'s Learning.')
 	print('We\'ll start by selecting a directory where all the files are going to be saved.')
@@ -179,69 +179,69 @@ enable_checkpoints = args.enable_checkpoints
 
 # --- CONSTANTS ---
 
-innsida = 'https://www.bth.se/lms'
-platform_redirection = 'https://platform.itslearning.com/Redirection/SetCustomerId.aspx?CustomerId=640'
+innsida = 'https://hkr.itslearning.com/'
+platform_redirection = 'https://hkr.itslearning.com/DashboardMenu.aspx?LocationType=Hierarchy'
 
-institutions = ['bth', ]
+institutions = ['hkr', ]
 
 itslearning_gateway_url = {
-	'bth': 'https://bth.itslearning.com/Index.aspx'}
+	'hkr': 'https://hkr.itslearning.com/Index.aspx'}
 
 
 itsleaning_course_list = {
-	'bth': 'https://bth.itslearning.com/Course/AllCourses.aspx'}
+	'hkr': 'https://hkr.itslearning.com/Course/AllCourses.aspx'}
 itslearning_course_base_url = {
-	'bth': 'https://bth.itslearning.com/ContentArea/ContentArea.aspx?LocationID={}&LocationType={}'}
+	'hkr': 'https://hkr.itslearning.com/ContentArea/ContentArea.aspx?LocationID={}&LocationType={}'}
 itslearning_login_landing_page = {
-	'bth': 'https://bth.itslearning.com/DashboardMenu.aspx'}
+	'hkr': 'https://hkr.itslearning.com/DashboardMenu.aspx'}
 itslearning_course_bulletin_base_url = {
-	'bth': 'https://bth.itslearning.com/Course/course.aspx?CourseId='}
+	'hkr': 'https://hkr.itslearning.com/Course/course.aspx?CourseId='}
 itslearning_project_bulletin_base_url = {
-	'bth': 'https://bth.itslearning.com/Project/project.aspx?ProjectId={}&BulletinBoardAll=True'}
+	'hkr': 'https://hkr.itslearning.com/Project/project.aspx?ProjectId={}&BulletinBoardAll=True'}
 itslearning_bulletin_next_url = {
-	'bth': 'https://bth.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}'}
+	'hkr': 'https://hkr.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}'}
 itslearning_folder_base_url = {
-	'bth': 'https://bth.itslearning.com/Folder/processfolder.aspx?FolderID='}
+	'hkr': 'https://hkr.itslearning.com/Folder/processfolder.aspx?FolderID='}
 itslearning_file_base_url = {
-	'bth': 'https://bth.itslearning.com/File/fs_folderfile.aspx?FolderFileID='}
+	'hkr': 'https://hkr.itslearning.com/File/fs_folderfile.aspx?FolderFileID='}
 itslearning_assignment_base_url = {
-	'bth': 'https://bth.itslearning.com/essay/read_essay.aspx?EssayID='}
+	'hkr': 'https://hkr.itslearning.com/essay/read_essay.aspx?EssayID='}
 itslearning_note_base_url = {
-	'bth': 'https://bth.itslearning.com/note/View_Note.aspx?NoteID='}
+	'hkr': 'https://hkr.itslearning.com/note/View_Note.aspx?NoteID='}
 itslearning_discussion_base_url = {
-	'bth': 'https://bth.itslearning.com/discussion/list_discussions.aspx?DiscussionID='}
+	'hkr': 'https://hkr.itslearning.com/discussion/list_discussions.aspx?DiscussionID='}
 itslearning_weblink_base_url = {
-	'bth': 'https://bth.itslearning.com/weblink/weblink.aspx?WebLinkID='}
+	'hkr': 'https://hkr.itslearning.com/weblink/weblink.aspx?WebLinkID='}
 itslearning_weblink_header_base_url = {
-	'bth': 'https://bth.itslearning.com/weblink/weblink_header.aspx?WebLinkID=' }
+	'hkr': 'https://hkr.itslearning.com/weblink/weblink_header.aspx?WebLinkID=' }
 itslearning_learning_tool_base_url = {
-	'bth': 'https://bth.itslearning.com/LearningToolElement/ViewLearningToolElement.aspx?LearningToolElementId='}
+	'hkr': 'https://hkr.itslearning.com/LearningToolElement/ViewLearningToolElement.aspx?LearningToolElementId='}
 itslearning_comment_service = {
-	'bth': 'https://bth.itslearning.com/Services/CommentService.asmx/GetOldComments?sourceId={}&sourceType={}&commentId={}&count={}&numberOfPreviouslyReadItemsToDisplay={}&usePersonNameFormatLastFirst={}'}
+	'hkr': 'https://hkr.itslearning.com/Services/CommentService.asmx/GetOldComments?sourceId={}&sourceType={}&commentId={}&count={}&numberOfPreviouslyReadItemsToDisplay={}&usePersonNameFormatLastFirst={}'}
 itslearning_root_url = {
-	'bth': 'https://bth.itslearning.com'}
+	'hkr': 'https://hkr.itslearning.com'}
 itslearning_not_found = {
-	'bth': 'https://bth.itslearning.com/not_exist.aspx'}
+	'hkr': 'https://hkr.itslearning.com/not_exist.aspx'}
 itslearning_test_base_url = {
-	'bth': 'https://bth.itslearning.com/test/view_survey_list.aspx?TestID='}
+	'hkr': 'https://hkr.itslearning.com/test/view_survey_list.aspx?TestID='}
 old_messaging_api_url = {
-	'bth': 'https://bth.itslearning.com/Messages/InternalMessages.aspx?MessageFolderId={}'}
+	'hkr': 'https://hkr.itslearning.com/Messages/InternalMessages.aspx?MessageFolderId={}'}
 itslearning_picture_url = {
-	'bth': 'https://bth.itslearning.com/picture/view_picture.aspx?PictureID={}&FolderID=-1&ChildID=-1&DashboardHierarchyID=-1&DashboardName=&ReturnUrl='}
+	'hkr': 'https://hkr.itslearning.com/picture/view_picture.aspx?PictureID={}&FolderID=-1&ChildID=-1&DashboardHierarchyID=-1&DashboardName=&ReturnUrl='}
 itslearning_online_test_url = {
-	'bth': 'https://bth.itslearning.com/Ntt/EditTool/ViewTest.aspx?TestID={}'}
+	'hkr': 'https://hkr.itslearning.com/Ntt/EditTool/ViewTest.aspx?TestID={}'}
 itslearning_online_test_details_postback_url = {
-	'bth': 'https://bth.itslearning.com/Ntt/EditTool/ViewTestResults.aspx?TestResultId={}'}
+	'hkr': 'https://hkr.itslearning.com/Ntt/EditTool/ViewTestResults.aspx?TestResultId={}'}
 itslearning_new_messaging_api_url = {
-	'bth': 'https://bth.itslearning.com/restapi/personal/instantmessages/messagethreads/v1?threadPage={}&maxThreadCount=15'}
+	'hkr': 'https://hkr.itslearning.com/restapi/personal/instantmessages/messagethreads/v1?threadPage={}&maxThreadCount=15'}
 itslearning_all_projects_url = {
-	'bth': 'https://bth.itslearning.com/Project/AllProjects.aspx'}
+	'hkr': 'https://hkr.itslearning.com/Project/AllProjects.aspx'}
 base64_png_image_url = {
-	'bth': 'https://bth.itslearning.comdata:image/png;base64,'}
+	'hkr': 'https://hkr.itslearning.comdata:image/png;base64,'}
 base64_jpeg_image_url = {
-	'bth': 'https://bth.itslearning.comdata:image/jpeg;base64,'}
+	'hkr': 'https://hkr.itslearning.comdata:image/jpeg;base64,'}
 itslearning_unauthorized_url = {
-	'bth': 'https://bth.itslearning.com/not_authorized.aspx'}
+	'hkr': 'https://hkr.itslearning.com/not_authorized.aspx'}
 
 innsida_login_parameters = {'SessionExpired': 0}
 progress_file_location = os.path.join(os.getcwd(), 'saved_progress_state.txt')
@@ -2118,8 +2118,8 @@ with requests.Session() as session:
 	if args.username is None:
 		print()
 		print('----------')
-		print('To continue, the script needs your BTH login credentials.')
-		print('To do so, type in your BTH username, press Enter, then type in your password, and press Enter again.')
+		print('To continue, the script needs your HKR login credentials.')
+		print('To do so, type in your HKR username, press Enter, then type in your password, and press Enter again.')
 		print()
 		print('NOTE: when the program asks for your password, for your security the characters you type are hidden.')
 		print('Just type in your password as you normally would, and press Enter.')
@@ -2128,7 +2128,7 @@ with requests.Session() as session:
 	is_first_iteration = True
 	while not credentials_correct:
 		if (args.username is None or not is_first_iteration) or (args.password is None or not is_first_iteration):
-			print('Please enter your BTH username and password.')
+			print('Please enter your HKR username and password.')
 
 		if args.username is None or not is_first_iteration:
 			username = input('Username: ')
@@ -2146,7 +2146,7 @@ with requests.Session() as session:
 		login_form_dict['ctl00$ContentPlaceHolder1$nativeLoginButton'] = "Logga in"
 
 		print('Sending login data')
-		relay_response = session.post(itslearning_root_url['bth'], data=login_form_dict, allow_redirects=True)
+		relay_response = session.post(itslearning_root_url['hkr'], data=login_form_dict, allow_redirects=True)
 		if not fromstring(relay_response.text).forms[0].action.startswith('./DashboardMenu.aspx'):
 			print('Incorrect credentials!')
 		else:
