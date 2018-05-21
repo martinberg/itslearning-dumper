@@ -242,6 +242,8 @@ base64_jpeg_image_url = {
 	'hkr': 'https://hkr.itslearning.comdata:image/jpeg;base64,'}
 itslearning_unauthorized_url = {
 	'hkr': 'https://hkr.itslearning.com/not_authorized.aspx'}
+itslearning_learning_tool_custom_base_url = {
+	'hkr': 'https://hkr.itslearning.com/CustomActivity/CustomActivityOverview.aspx?CustomActivityId='}
 
 innsida_login_parameters = {'SessionExpired': 0}
 progress_file_location = os.path.join(os.getcwd(), 'saved_progress_state.txt')
