@@ -207,7 +207,7 @@ itslearning_file_base_url = {
 itslearning_assignment_base_url = {
 	'hkr': 'https://hkr.itslearning.com/essay/read_essay.aspx?EssayID='}
 itslearning_note_base_url = {
-	'hkr': 'https://hkr.itslearning.com/note/View_Note.aspx?NoteID='}
+	'hkr': 'https://hkr.itslearning.com/Note/View_Note.aspx?NoteID='}
 itslearning_discussion_base_url = {
 	'hkr': 'https://hkr.itslearning.com/discussion/list_discussions.aspx?DiscussionID='}
 itslearning_weblink_base_url = {
@@ -630,6 +630,22 @@ def processLearningToolElement(institution, pathThusFar, elementURL, session):
 	except KeyError:
 		print('\tPage appears to have abnormal page structure. Falling back on dumping entire page as-is.')
 		bytesToTextFile(etree.tostring(element_document, pretty_print=True, encoding='utf-8'), dumpDirectory + '/page_contents' + output_text_extension)
+		
+def processCustomActivity(institution, pathThusFar, custom_activityURL, session):
+	custom_activity_response = session.get(custom_activityURL, allow_redirects=True)
+	custom_activity_document = fromstring(custom_activity_response.text)
+
+	custom_activity_title = custom_activity_document.get_element_by_id('ctl00_PageHeader_TT').text
+	custom_activity_title = sanitiseFilename(custom_activity_title)
+	print('\tDownloaded Custom Activity: ', custom_activity_title.encode('ascii', 'ignore'))
+
+	dumpDirectory = pathThusFar + '/Result - ' + custom_activity_title
+	dumpDirectory = sanitisePath(dumpDirectory)
+	dumpDirectory = makeDirectories(dumpDirectory)
+
+	custom_activity_ass = custom_activity_document.get_element_by_id('ctl00_ContentPlaceHolder_ContentContainer')
+
+	bytesToTextFile(etree.tostring(custom_activity_ass, pretty_print=True, encoding='utf-8'), dumpDirectory + '/page_contents' + output_text_extension)
 
 def processPicture(institution, pathThusFar, pictureURL, session):
 	picture_response = session.get(pictureURL, allow_redirects=True)
@@ -758,7 +774,7 @@ def processDiscussionForum(institution, pathThusFar, discussionURL, session):
 	while pages_remaining:
 
 		nextThreadElement = discussion_document.get_element_by_id('Threads_' + str(threadID))
-		if nextThreadElement[0].text is None or (not nextThreadElement[0].text.startswith('No threads') and not nextThreadElement[0].text.startswith('Ingen hovedinnlegg')):
+		if nextThreadElement[0].text is None or (not nextThreadElement[0].text.startswith('No threads') and not nextThreadElement[0].text.startswith('Inga trådar')):
 			while nextThreadElement is not None and nextThreadElement != False:
 				postURL = nextThreadElement[1][0].get('href')
 				postTitle = nextThreadElement[1][0].text
@@ -1065,7 +1081,7 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 				answer_info += 'Plagiarism status: ' + plagiarism_status + '\n'
 				answer_info += 'Comments on assessment: \n\n' + comment_field_contents + '\n'
 
-				bytesToTextFile(answer_info.encode('utf-8'), answer_directory + '/answer' + output_text_extension)
+				bytesToTextFile(answer_info.encode('utf-8'), answer_directory + '/Answer' + output_text_extension)
 
 				# Again, only download files if there is a submission in the first place.
 				if has_submitted:
@@ -1469,7 +1485,7 @@ def processFolder(institution, pathThusFar, folderURL, session, courseIndex, fol
 			elif item_url.startswith('/essay'):
 				pass
 				processAssignment(institution, pathThusFar, itslearning_assignment_base_url[institution] + item_url.split('=')[1], session)
-			elif item_url.startswith('/note'):
+			elif item_url.startswith('/Note'):
 				pass
 				processNote(institution, pathThusFar, itslearning_note_base_url[institution] + item_url.split('=')[1], session)
 			elif item_url.startswith('/discussion'):
@@ -1490,6 +1506,9 @@ def processFolder(institution, pathThusFar, folderURL, session, courseIndex, fol
 			elif item_url.startswith('/Ntt'):
 				pass
 				processOnlineTest(institution, pathThusFar, itslearning_online_test_url[institution].format(item_url.split('=')[1]), item_url.split('=')[1], session)
+			elif item_url.startswith('/CustomActivity'):
+				pass
+				processCustomActivity(institution, pathThusFar, itslearning_learning_tool_custom_base_url[institution] + item_url.split('=')[1], session)
 			else:
 				print('Warning: Skipping unknown URL:', item_url.encode('ascii', 'ignore'))
 		except Exception:
