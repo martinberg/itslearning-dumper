@@ -201,7 +201,7 @@ itslearning_project_bulletin_base_url = {
 itslearning_bulletin_next_url = {
 	'hkr': 'https://hkr.itslearning.com/Bulletins/Page?courseId={}&boundaryLightBulletinId={}&boundaryLightBulletinCreatedTicks={}'}
 itslearning_folder_base_url = {
-	'hkr': 'https://hkr.itslearning.com/Folder/processfolder.aspx?FolderID='}
+	'hkr': 'https://hkr.itslearning.com/Folder/processfolder.aspx?FolderElementID='}
 itslearning_file_base_url = {
 	'hkr': 'https://hkr.itslearning.com/File/fs_folderfile.aspx?FolderFileID='}
 itslearning_assignment_base_url = {
