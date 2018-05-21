@@ -115,7 +115,7 @@ skip_to_course_with_index = max(args.skip_to_course, (1 if args.courses_only or 
 if not args.do_listing:
 	print('----- It\'s Learning dump script -----')
 	print('Created by: Bart van Blokland (bart.van.blokland@ntnu.no)')
-	print('Modified by: Martin Bergström')
+	print('Modified by: Fredrik Erlandsson (fer@bth.se) with further modifications from Martin Bergström')
 	print()
 	print('Greetings! This script will help you download your content off of It\'s Learning.')
 	print('We\'ll start by selecting a directory where all the files are going to be saved.')
