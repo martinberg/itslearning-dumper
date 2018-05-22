@@ -976,14 +976,13 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 				#		print(i, ':', etree.tostring(submission_element[i]))
 				#	except IndexError:
 				#		pass
-						
-				no_group_index_offset = 0
-				if 'No group' in submission_element[2].text_content() or 'Ingen gruppe' in submission_element[2].text_content():
-					no_group_index_offset = 1
-				elif 'Manage' in submission_element[2].text_content() or 'Administrer' in submission_element[2].text_content():
-					no_group_index_offset = 1
-				elif 'New group' in submission_element[2].text_content() or 'Ny gruppe' in submission_element[2].text_content():
-					no_group_index_offset = 1
+
+				no_group_index_offset = 1
+
+				#Dirty code: Enable this if your site doesn't have an extra column between name and submitted time
+				#no_group_index_offset = 0
+
+
 
 				#print("Index offset:", no_group_index_offset)
 
@@ -1010,16 +1009,19 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 					students = [submission_element[1].text_content()]
 				if not students:
 					students = [submission_element[1].text_content()]
-				# Column 2: Submission date/time
-				submission_time = submission_element[2 + no_group_index_offset].text
-				# Column 3: Review date
+				# Column 2: synckey
+				synckey = submission_element[1 + no_group_index_offset].text
+				# Column 3: Submission time
+				submission_time = submission_element[2 + no_group_index_offset].text_content()
+				# Column 4: Review Date
 				review_date = submission_element[3 + no_group_index_offset].text
 				# Column 4: Status
 				status = submission_element[4 + no_group_index_offset].text_content()
 				# Column 5: Score
 				# If nobody answered the assignment, all of the next elements are not present and thus will fail
+
 				try:
-					if not ('Show' in submission_element[5 + no_group_index_offset].text_content() or 'Vis' in submission_element[5 + no_group_index_offset].text_content()):
+					if submission_element[5 + no_group_index_offset].text != None or submission_element[5 + no_group_index_offset].text != '':
 						score = submission_element[5 + no_group_index_offset].text
 					else:
 						# We have hit the assignment details link. This requires adjusting the offset
@@ -1031,7 +1033,7 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 				# Column 6: Plagiarism status
 				if has_plagiarism_report:
 					try:
-						plagiarism_status = submission_element[6 + no_group_index_offset].text_content()
+						plagiarism_status = submission_element[5 + no_group_index_offset].text_content()
 					except IndexError:
 						plagiarism_status = None
 				else:
@@ -1044,9 +1046,9 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 					details_page_url = None
 
 				has_submitted = submission_time is not None and not 'Not submitted' in submission_time and not 'Ikke levert' in submission_time
-				if submission_time is None:
+				if submission_time is None or submission_time == 'Not submitted':
 					submission_time = 'Not submitted.'
-				if review_date is None:
+				if review_date is None or review_date == '':
 					review_date = 'Not assessed.'
 				if score is None:
 					score = ''
@@ -1076,11 +1078,12 @@ def processAssignment(institution, pathThusFar, assignmentURL, session):
 				answer_info = 'Students:\n'
 				for student in students:
 					answer_info += '\t- ' + student + '\n'
-				answer_info += 'Submission Time: ' + submission_time + '\n'
+				answer_info += 'Sync key: ' + synckey + '\n'
+				answer_info += 'Submitted: ' + submission_time + '\n'
 				answer_info += 'Review Date: ' + review_date + '\n'
-				answer_info += 'Status: ' + status + '\n'
+				answer_info += 'Reviewed: ' + status + '\n'
 				answer_info += 'Score: ' + score + '\n'
-				answer_info += 'Plagiarism status: ' + plagiarism_status + '\n'
+				#answer_info += 'Plagiarism status: ' + plagiarism_status + '\n'
 				answer_info += 'Comments on assessment: \n\n' + comment_field_contents + '\n'
 
 				bytesToTextFile(answer_info.encode('utf-8'), answer_directory + '/Answer' + output_text_extension)
